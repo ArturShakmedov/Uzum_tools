@@ -360,6 +360,42 @@ except (ConnectTimeout, ConnectError, ...):
 
 ---
 
+## 9. Контур качества: регрессионные тесты + итоги аудита 12.06.2026
+
+### Тесты (`tests/`, pytest)
+`.venv/bin/pytest tests/ -q` — 21 тест на временной SQLite, схема строится
+боевым путём (`init_db()` → alembic upgrade head). Покрытие: зоны FBS-дедлайна,
+карта статусов + upsert моста, идемпотентность платежей (dup charge_id →
+IntegrityError), продление подписки от expires_at, одноразовость триала,
+дебаунс инвойсов, naive/aware даты, `_parse_dt`, регрессия ensure_user.
+
+### ⚠️ Системный footgun: `autoflush=False` в SessionLocal
+Pending-вставки НЕ видны последующим `select`/`session.get` в той же сессии.
+Уже укушены трижды: `ensure_user` (дубль PK users), `sync_fbs_orders` и
+`sync_shipping_acts` (дубль UNIQUE — пойман тестом). **Правило:** функция
+репозитория, которая вставляет строки и может быть вызвана повторно в одной
+сессии (или за ней следуют выборки тех же таблиц), обязана делать
+`session.flush()` после вставок.
+
+### Закрыто аудитом
+- Гонка welcome-триала: `with_for_update` + ретрай PK-гонки в `start._save`.
+- Дебаунс «купить» (`has_recent_open_payment`, 15 мин) — нет фантомных created.
+- Гонка создания топика саппорта: per-user `asyncio.Lock` (нет топиков-сирот).
+- `/root` выручка — по дате ЗАВЕРШЕНИЯ платежа (`COALESCE(updated_at, created_at)`).
+- Удалён мёртвый `repository.admin_stats` (дубль get_admin_stats).
+- Права: `.env` и `data/uzum.db` → chmod 600 (были world-readable!).
+- `requests_per_second` 3.0→2.0 (см. §8, замер лимитов).
+
+### Известное и принятое
+- `alembic check` на ЛЕГАСИ дев-SQLite красный (наследие stamp-bridge: role
+  VARCHAR vs Enum, unique-индекс vs констрейнт, нюансы nullable). На свежей БД,
+  собранной Alembic, — «No new upgrade operations detected» ✅. Прод-Postgres
+  строится свежим → чист. Не чинить миграцией-рекон-силиацией: риск > пользы.
+- Process-local кэши (`SYSTEM_CACHE`, `_STATUS_CACHE`, `_topic_locks`) — до
+  мульти-инстанса (план Redis Pub/Sub в «🔭 След. шаг»).
+
+---
+
 ## Иерархия и реконсиляция
 
 - Фактический «root» — **ADMIN_IDS** (Shield повышает их до ROOT безусловно): не

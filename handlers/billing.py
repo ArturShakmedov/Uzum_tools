@@ -30,6 +30,7 @@ from database.repository import (
     activate_premium,
     complete_payment_log,
     create_payment_log,
+    has_recent_open_payment,
 )
 from utils.logger import get_logger
 
@@ -83,7 +84,11 @@ async def on_choose_plan(callback: CallbackQuery) -> None:
 
 def _log_created(telegram_id: int, payload: str, amount_uzs: int) -> None:
     with session_scope() as session:
-        create_payment_log(session, telegram_id, payload, amount_uzs)
+        # Дебаунс: повторный клик по тому же тарифу в течение 15 мин не плодит
+        # фантомные created-записи (инвойс всё равно перевыставляется, а
+        # complete_payment_log закроет последнюю открытую запись при оплате).
+        if not has_recent_open_payment(session, telegram_id, payload):
+            create_payment_log(session, telegram_id, payload, amount_uzs)
 
 
 @router.callback_query(F.data.startswith("sub:buy:"))

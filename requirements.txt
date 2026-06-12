@@ -21,3 +21,5 @@ cryptography>=42.0
 psycopg[binary]>=3.1
 # FSM-состояния aiogram в Redis → stateless-бот за балансировщиком (redis 5+).
 redis>=5.0
+# Дев/CI: регрессионные тесты критической логики (tests/, см. базу знаний §9).
+pytest>=8.0

@@ -10,6 +10,7 @@ from aiogram.filters import CommandObject, CommandStart
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import CallbackQuery, Message
+from sqlalchemy.exc import IntegrityError
 
 from database.connection import session_scope
 from database.repository import (
@@ -151,18 +152,32 @@ async def connect_chosen_shop(callback: CallbackQuery, state: FSMContext) -> Non
         return
 
     def _save() -> bool:
-        """Сохранить магазин и (в той же транзакции) попытаться выдать Welcome-триал."""
-        with session_scope() as session:
-            connect_shop(
-                session,
-                callback.from_user.id,
-                uzum_shop_id,
-                shop_name=shop_name,
-                uzum_token=token,
-                username=callback.from_user.username,
-            )
-            # 7 дней Premium при ПЕРВОМ магазине; повторно не начислится (abuse-защита).
-            return activate_welcome_trial(session, callback.from_user.id)
+        """Сохранить магазин и (в той же транзакции) попытаться выдать Welcome-триал.
+
+        Ретрай на IntegrityError: двойной тап по кнопке может породить два
+        параллельных потока, где оба создают User (PK-гонка) — проигравший
+        перечитывает уже созданную строку со второй попытки.
+        """
+        for attempt in (1, 2):
+            try:
+                with session_scope() as session:
+                    connect_shop(
+                        session,
+                        callback.from_user.id,
+                        uzum_shop_id,
+                        shop_name=shop_name,
+                        uzum_token=token,
+                        username=callback.from_user.username,
+                    )
+                    # 7 дней Premium при ПЕРВОМ магазине; повторно не начислится
+                    # (abuse-защита + FOR UPDATE против гонки двойного тапа).
+                    return activate_welcome_trial(session, callback.from_user.id)
+            except IntegrityError:
+                if attempt == 2:
+                    raise
+                log.warning("connect_shop: PK-гонка двойного тапа (%s), ретрай.",
+                            callback.from_user.id)
+        return False  # недостижимо (return/raise выше) — для типобезопасности
 
     trial_granted = await asyncio.to_thread(_save)
     await state.clear()

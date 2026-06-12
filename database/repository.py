@@ -1126,7 +1126,12 @@ def activate_welcome_trial(session: Session, telegram_id: int) -> bool:
     выдаётся один раз на аккаунт, а не на магазин — перепривязка не сбрасывает дату.
     Возвращает True, только если триал реально начислен.
     """
-    user = ensure_user(session, telegram_id)
+    ensure_user(session, telegram_id)  # строка существует (flush внутри)
+    # FOR UPDATE: параллельная выдача триала (двойной тап по «выбрать магазин»)
+    # сериализуется СУБД — второй поток увидит уже заполненный expires_at.
+    user = session.execute(
+        select(User).where(User.telegram_id == telegram_id).with_for_update()
+    ).scalar_one()
     if user.subscription_expires_at is not None:
         return False
     user.subscription_tier = "premium"
@@ -1396,6 +1401,10 @@ def sync_fbs_orders(
             obj.sku_title = sku_title[:256]
             obj.order_created_at = created
         affected += 1
+    # autoflush=False: без flush повторный вызов моста / select в ЭТОЙ ЖЕ сессии
+    # не увидит pending-вставок и продублирует INSERT (тот же класс бага, что
+    # был в ensure_user — пойман регрессионным тестом).
+    session.flush()
     return affected
 
 
@@ -1429,6 +1438,7 @@ def sync_shipping_acts(
         if created is not None:
             act.created_at = created
         affected += 1
+    session.flush()  # autoflush=False: видимость pending-вставок (см. sync_fbs_orders)
     return affected
 
 
@@ -1444,6 +1454,33 @@ def create_payment_log(
     )
     session.add(entry)
     return entry
+
+
+def has_recent_open_payment(
+    session: Session, telegram_id: int, payload: str, *, within_minutes: int = 15
+) -> bool:
+    """True, если у юзера уже есть СВЕЖАЯ открытая 'created'-запись по payload.
+
+    Дебаунс аудита: повторный клик по «купить» в течение окна не плодит
+    фантомные created-записи (админ видел их как «зависшие оплаты»). Сравнение
+    времени — в Python (naive SQLite ↔ aware Postgres, как в is_user_premium).
+    """
+    entry = session.execute(
+        select(PaymentLog)
+        .where(
+            PaymentLog.telegram_id == telegram_id,
+            PaymentLog.payload == payload,
+            PaymentLog.status == "created",
+        )
+        .order_by(PaymentLog.created_at.desc(), PaymentLog.id.desc())
+        .limit(1)
+    ).scalar_one_or_none()
+    if entry is None or entry.created_at is None:
+        return False
+    created = entry.created_at
+    if created.tzinfo is None:
+        created = created.replace(tzinfo=_UTC)
+    return created >= dt.datetime.now(_UTC) - dt.timedelta(minutes=within_minutes)
 
 
 def complete_payment_log(
@@ -1570,7 +1607,11 @@ def get_dashboard_stats(session: Session) -> dict[str, Any]:
             PaymentLog.status == "completed"
         )
         if since is not None:
-            stmt = stmt.where(PaymentLog.created_at >= since)
+            # Дата ЗАВЕРШЕНИЯ платежа (updated_at ставится при completed), а не
+            # выставления инвойса: «висяк», оплаченный сегодня, попадает в сегодня.
+            stmt = stmt.where(
+                func.coalesce(PaymentLog.updated_at, PaymentLog.created_at) >= since
+            )
         return int(session.scalar(stmt) or 0)
 
     return {
@@ -1677,24 +1718,6 @@ def deactivate_user_shops(session: Session, telegram_id: int) -> None:
     _deactivate_all(session, telegram_id)
 
 
-def admin_stats(session: Session) -> dict[str, int]:
-    """Агрегированная статистика по БД (для /stats)."""
-    def _count(stmt) -> int:
-        return session.execute(stmt).scalar_one()
-
-    return {
-        "users": _count(select(func.count(func.distinct(UserShop.telegram_id)))),
-        "shops": _count(select(func.count()).select_from(UserShop)),
-        "active_shops": _count(
-            select(func.count()).select_from(UserShop).where(UserShop.is_active.is_(True))
-        ),
-        "sku_catalog": _count(select(func.count()).select_from(SkuBarcode)),
-        "orders": _count(select(func.count()).select_from(Order)),
-        "returns": _count(select(func.count()).select_from(Return)),
-        "barcodes": _count(select(func.count()).select_from(Barcode)),
-    }
-
-
 __all__ = [
     "SyncReport",
     "Tally",
@@ -1712,7 +1735,6 @@ __all__ = [
     "touch_active_shop_sync",
     "get_active_status",
     "wipe_user",
-    "admin_stats",
     "get_admin_stats",
     "list_broadcast_recipients",
     "deactivate_user_shops",
@@ -1741,6 +1763,7 @@ __all__ = [
     "sync_fbs_orders",
     "sync_shipping_acts",
     "create_payment_log",
+    "has_recent_open_payment",
     "complete_payment_log",
     "list_payment_logs",
     "get_setting",

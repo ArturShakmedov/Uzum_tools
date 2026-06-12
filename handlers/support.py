@@ -36,6 +36,15 @@ router = Router(name="support")
 # Кнопка выхода из режима чата с поддержкой (показывается, пока активен диалог).
 BTN_SUPPORT_EXIT = "❌ Выйти из чата поддержки"
 
+# Per-user lock на создание топика: два быстрых сообщения юзера без тикета
+# создавали ДВА топика (второй перезаписывал ticket, первый сиротел). Хэндлеры
+# крутятся в одном event loop'е → обычного asyncio.Lock достаточно.
+_topic_locks: dict[int, asyncio.Lock] = {}
+
+
+def _topic_lock(telegram_id: int) -> asyncio.Lock:
+    return _topic_locks.setdefault(telegram_id, asyncio.Lock())
+
 
 class SupportState(StatesGroup):
     waiting_for_message = State()
@@ -106,60 +115,63 @@ async def on_user_support_message(message: Message, state: FSMContext) -> None:
         return
 
     user = message.from_user
-    topic_id = await asyncio.to_thread(_get_topic_id, user.id)
+    # Lock: get-or-create топика атомарен на процесс — второе сообщение ждёт
+    # первое и видит уже созданный topic_id (нет топиков-сирот).
+    async with _topic_lock(user.id):
+        topic_id = await asyncio.to_thread(_get_topic_id, user.id)
 
-    # Топика ещё нет → создаём персональную тему в супергруппе поддержки.
-    if topic_id is None:
-        # Компактное имя темы (≤128 симв.): только имя + ID, без юзернейма/мусора.
-        try:
-            topic = await message.bot.create_forum_topic(
-                chat_id=SUPPORT_CHAT_ID,
-                name=f"🎫 {user.first_name} (ID: {user.id})",
-            )
-        except Exception as exc:  # noqa: BLE001 — диагностика причины падения
-            log.error("=== КРИТИЧЕСКАЯ ОШИБКА ТЕХПОДДЕРЖКИ ===")
-            log.error("Пытались создать топик в чате ID: %s", SUPPORT_CHAT_ID)
-            log.error("Тип ошибки: %s", type(exc).__name__)
-            log.error("Детали ошибки от Telegram API: %s", str(exc))
-            log.exception(exc)
-            await message.answer(
-                "⚠️ Не удалось создать обращение. Попробуйте позже.",
-                reply_markup=main_menu_kb(),
-            )
-            await state.clear()
-            return
-        topic_id = topic.message_thread_id
-        await asyncio.to_thread(_save_topic, user.id, topic_id)
+        # Топика ещё нет → создаём персональную тему в супергруппе поддержки.
+        if topic_id is None:
+            # Компактное имя темы (≤128 симв.): только имя + ID, без юзернейма/мусора.
+            try:
+                topic = await message.bot.create_forum_topic(
+                    chat_id=SUPPORT_CHAT_ID,
+                    name=f"🎫 {user.first_name} (ID: {user.id})",
+                )
+            except Exception as exc:  # noqa: BLE001 — диагностика причины падения
+                log.error("=== КРИТИЧЕСКАЯ ОШИБКА ТЕХПОДДЕРЖКИ ===")
+                log.error("Пытались создать топик в чате ID: %s", SUPPORT_CHAT_ID)
+                log.error("Тип ошибки: %s", type(exc).__name__)
+                log.error("Детали ошибки от Telegram API: %s", str(exc))
+                log.exception(exc)
+                await message.answer(
+                    "⚠️ Не удалось создать обращение. Попробуйте позже.",
+                    reply_markup=main_menu_kb(),
+                )
+                await state.clear()
+                return
+            topic_id = topic.message_thread_id
+            await asyncio.to_thread(_save_topic, user.id, topic_id)
 
-        # Карточка-анкета юзера в шапку топика (детали вынесены из названия).
-        full_name = escape(f"{user.first_name} {user.last_name or ''}".strip())
-        username = f"@{escape(user.username)}" if user.username else "нет"
-        created = dt.datetime.now().strftime("%d.%m.%Y %H:%M")
-        card_text = (
-            "🎫 <b>Новое обращение в поддержку</b>\n"
-            "───────────────────\n"
-            f"👤 <b>Имя:</b> {full_name}\n"
-            f"🆔 <b>Telegram ID:</b> <code>{user.id}</code>\n"
-            f"🔗 <b>Юзернейм:</b> {username}\n"
-            f"📅 <b>Дата обращения:</b> {created}\n"
-            "───────────────────\n"
-            "<i>Ответьте на это сообщение или пишите в этот топик, чтобы "
-            "отправить ответ пользователю.</i>"
-        )
-        try:
-            card = await message.bot.send_message(
-                chat_id=SUPPORT_CHAT_ID,
-                message_thread_id=topic_id,
-                text=card_text,
+            # Карточка-анкета юзера в шапку топика (детали вынесены из названия).
+            full_name = escape(f"{user.first_name} {user.last_name or ''}".strip())
+            username = f"@{escape(user.username)}" if user.username else "нет"
+            created = dt.datetime.now().strftime("%d.%m.%Y %H:%M")
+            card_text = (
+                "🎫 <b>Новое обращение в поддержку</b>\n"
+                "───────────────────\n"
+                f"👤 <b>Имя:</b> {full_name}\n"
+                f"🆔 <b>Telegram ID:</b> <code>{user.id}</code>\n"
+                f"🔗 <b>Юзернейм:</b> {username}\n"
+                f"📅 <b>Дата обращения:</b> {created}\n"
+                "───────────────────\n"
+                "<i>Ответьте на это сообщение или пишите в этот топик, чтобы "
+                "отправить ответ пользователю.</i>"
             )
-            # Закрепляем анкету в шапке темы (без шумного уведомления).
-            await message.bot.pin_chat_message(
-                chat_id=SUPPORT_CHAT_ID,
-                message_id=card.message_id,
-                disable_notification=True,
-            )
-        except Exception as exc:  # noqa: BLE001 — нет права pin / прочие сбои не критичны
-            log.warning("Карточка/закрепление в топике %s: %s", topic_id, exc)
+            try:
+                card = await message.bot.send_message(
+                    chat_id=SUPPORT_CHAT_ID,
+                    message_thread_id=topic_id,
+                    text=card_text,
+                )
+                # Закрепляем анкету в шапке темы (без шумного уведомления).
+                await message.bot.pin_chat_message(
+                    chat_id=SUPPORT_CHAT_ID,
+                    message_id=card.message_id,
+                    disable_notification=True,
+                )
+            except Exception as exc:  # noqa: BLE001 — нет права pin / сбои не критичны
+                log.warning("Карточка/закрепление в топике %s: %s", topic_id, exc)
 
     # Копируем сообщение юзера в топик (текст/фото/документ — любой контент).
     try:

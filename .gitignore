@@ -1,7 +1,10 @@
 .venv/
 __pycache__/
 *.pyc
+.pytest_cache/
 .env
+# Базы данных: дев-SQLite живёт в data/, случайные *.db в корне — тоже мимо репо.
+/*.db
 data/*.db
 data/*.db-wal
 data/*.db-shm
