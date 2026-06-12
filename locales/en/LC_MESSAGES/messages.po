@@ -1,0 +1,98 @@
+# English translations for Uzum Tools.
+# Copyright (C) 2026 ORGANIZATION
+# This file is distributed under the same license as the Uzum Tools project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Uzum Tools 1.0\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-06-11 13:23+0500\n"
+"PO-Revision-Date: 2026-06-11 01:08+0500\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: en\n"
+"Language-Team: en <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: handlers/fbs_manager.py:48
+msgid "📄 Акты отправки"
+msgstr ""
+
+#: handlers/fbs_manager.py:49
+msgid "⏰ Текущие поставки (Таймер)"
+msgstr ""
+
+#: handlers/fbs_manager.py:66
+msgid ""
+"🚚 <b>FBS-логистика</b>\n"
+"\n"
+"Акты приёма-передачи и контроль дедлайнов отгрузки — выберите раздел:"
+msgstr ""
+
+#: handlers/fbs_manager.py:95
+msgid "Актов отправки пока нет — они появятся после первой отгрузки."
+msgstr ""
+
+#: handlers/fbs_manager.py:100
+msgid "📄 <b>Последние акты отправки:</b>"
+msgstr ""
+
+#: handlers/fbs_manager.py:103
+#, python-brace-format
+msgid "▪️ Акт №{number} от {date} — Количество: {items} шт."
+msgstr ""
+
+#: handlers/fbs_manager.py:107
+#, python-brace-format
+msgid "<a href=\"{url}\">[Посмотреть акт]</a>"
+msgstr ""
+
+#: handlers/fbs_manager.py:137
+msgid "Активных FBS-заказов нет — дедлайны не горят 👌"
+msgstr ""
+
+#: handlers/fbs_manager.py:148
+#, python-brace-format
+msgid "⏰ <b>Дедлайны отгрузки FBS</b> (регламент: {hours} ч. на сборку):"
+msgstr ""
+
+#: handlers/fbs_manager.py:151
+msgid "<i>🟢 безопасно (&gt;12 ч.) · 🟡 срочно (4–12 ч.) · 🔴 горишь (&lt;4 ч.)</i>"
+msgstr ""
+
+#: handlers/fbs_manager.py:160
+msgid "🚐 Собран — доставь на пункт приёма!"
+msgstr ""
+
+#: handlers/fbs_manager.py:162
+msgid "📦 Собери и упакуй товар"
+msgstr ""
+
+#: handlers/fbs_manager.py:165
+#, python-brace-format
+msgid "Заказ #{oid} ({title}) — ⚠️ <b>ПРОСРОЧЕН</b>, риск штрафа! 🔴"
+msgstr ""
+
+#: handlers/fbs_manager.py:171
+#, python-brace-format
+msgid ""
+"Заказ #{oid} ({title}) — Оставшееся время: {hours} ч. {minutes} мин. "
+"{emoji} · {action}"
+msgstr ""
+
+#: keyboards/menu.py:33
+msgid "🚚 FBS Логистика"
+msgstr ""
+
+#~ msgid "⏰ Таймер дедлайнов"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Заказ #{oid} ({title}) — Оставшееся "
+#~ "время: {hours} ч. {minutes} мин. {emoji}"
+#~ msgstr ""
+

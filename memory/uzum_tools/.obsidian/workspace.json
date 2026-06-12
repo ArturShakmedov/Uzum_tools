@@ -1,0 +1,214 @@
+{
+  "main": {
+    "id": "6f8ba119bfd87917",
+    "type": "split",
+    "children": [
+      {
+        "id": "473e1fcc8efe03d5",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "a65a2aacaf3b13cc",
+            "type": "leaf",
+            "state": {
+              "type": "graph",
+              "state": {},
+              "icon": "lucide-git-fork",
+              "title": "Граф"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "c3c6a1079e19daeb",
+    "type": "split",
+    "children": [
+      {
+        "id": "53ae3cff47f62f90",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "8212bf9b7904df04",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Файловый менеджер"
+            }
+          },
+          {
+            "id": "852a387604c68dd0",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Поиск"
+            }
+          },
+          {
+            "id": "642af2d222100a72",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Закладки"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "b4b98e0afa17e882",
+    "type": "split",
+    "children": [
+      {
+        "id": "84f87e3467de3737",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "f3f6be50d00e9a9f",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "07_Infrastructure_&_Sizing.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Обратные ссылки для 07_Infrastructure_&_Sizing"
+            }
+          },
+          {
+            "id": "89af688caee8f9c0",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "07_Infrastructure_&_Sizing.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Исходящие ссылки из 07_Infrastructure_&_Sizing"
+            }
+          },
+          {
+            "id": "6f55013ae254f626",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Теги"
+            }
+          },
+          {
+            "id": "6588f8f6eb0a687e",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "Все свойства"
+            }
+          },
+          {
+            "id": "7ef0dbb1253e377a",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "07_Infrastructure_&_Sizing.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Структура 07_Infrastructure_&_Sizing"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Меню быстрого перехода": false,
+      "graph:Граф": false,
+      "canvas:Создать новый холст": false,
+      "daily-notes:Сегодняшняя заметка": false,
+      "templates:Вставить шаблон": false,
+      "command-palette:Открыть палитру команд": false,
+      "bases:Создать новую базу": false
+    }
+  },
+  "active": "a65a2aacaf3b13cc",
+  "lastOpenFiles": [
+    "07_Infrastructure_&_Sizing.md",
+    "11_Competitor_Analytics.md",
+    "08_Live_Notifications.md",
+    "09_Admin_Panel.md",
+    "12_Subscription_&_Teams.md",
+    "10_Billing_&_Subscriptions.md",
+    "15_Enterprise_Infrastructure.md.tmp.63934.8f8ccd04e696",
+    "15_Enterprise_Infrastructure.md",
+    "15_Enterprise_Infrastructure.md.tmp.63934.5cb59a4fd19d",
+    "15_Enterprise_Infrastructure.md.tmp.1038424.c049006ee894",
+    "15_Enterprise_Infrastructure.md.tmp.1038424.a90767b9c353",
+    "00_Index.md.tmp.1038424.8a05c63bce04",
+    "15_Enterprise_Infrastructure.md.tmp.1038424.f0f229396097",
+    "00_Index.md.tmp.11002.e25811bafa60",
+    "15_Enterprise_Infrastructure.md.tmp.11002.eb4b7cbc42a2",
+    "15_Enterprise_Infrastructure_&_Admin.md",
+    "00_Index.md.tmp.11002.361e50e47ac2",
+    "15_Enterprise_Infrastructure_&_Admin.md.tmp.11002.8d566d203dc1",
+    "00_Index.md",
+    "14_Admin_Billing_Control.md",
+    "13_Support_System.md",
+    "01_Database_Schema.md",
+    "06_Bot_Flow_&_States.md",
+    "05_API_Integration.md",
+    "04_Sales_Analytics_&_ABC.md",
+    "03_Calculator_&_Economics.md",
+    "02_Product_Catalog_&_Group_Logic.md",
+    "Добро пожаловать.md",
+    "создайте ссылку.md"
+  ]
+}

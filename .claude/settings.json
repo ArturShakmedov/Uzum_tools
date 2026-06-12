@@ -1,0 +1,50 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s --max-time 30 -H \"User-Agent: Mozilla/5.0\" \"https://api-seller.uzum.uz/api/seller-openapi/swagger/api-docs\" -o /tmp/uzum_api.json)",
+      "Bash(python3 -)",
+      "Bash(python3 -m py_compile handlers/products_handlers.py keyboards/products.py database/repository.py database/connection.py database/models.py services/products.py)",
+      "Bash(python3 -c \"import sys;print\\(sys.version\\)\")",
+      "Bash(.venv/bin/python -c \"import sys,sqlalchemy;print\\(sys.version.split\\(\\)[0], 'sqlalchemy', sqlalchemy.__version__\\)\")",
+      "Bash(python3 -m py_compile handlers/products_handlers.py keyboards/products.py services/products.py database/repository.py database/models.py database/connection.py)",
+      "Bash(.venv/bin/python -c \"import sqlalchemy, cryptography; print\\('sqlalchemy', sqlalchemy.__version__\\)\")",
+      "Bash(.venv/bin/python -)",
+      "Bash(.venv/bin/python -m py_compile handlers/products_handlers.py keyboards/products.py services/sales_analytics.py database/repository.py)",
+      "Bash(python3 -m py_compile services/sales_analytics.py database/repository.py keyboards/products.py)",
+      "Bash(.venv/bin/python -m compileall -q bot.py handlers services database keyboards)",
+      "Bash(.venv/bin/python -c ' *)",
+      "Bash(.venv/bin/python -m compileall -q bot.py handlers)",
+      "Bash(grep -n \"prod:select_sku.*on_select_sku\\\\|prod:calc\\\\|prod:sim\\\\b\\\\|callback_data\\\\| \\\\`prod:\" memory/uzum_tools/06_Bot_Flow_\\\\&_States.md)",
+      "Bash(.venv/bin/python -m compileall -q services/notification_worker.py bot.py)",
+      "Bash(cd /run/media/artur/33e890b4-e9ce-4308-8bb8-c1559b8054c5/Uzum_tools *)",
+      "Bash(.venv/bin/python -m py_compile handlers/admin.py database/repository.py)",
+      "Bash(.venv/bin/python -m compileall -q bot.py main.py config.py api database handlers services utils keyboards middlewares)",
+      "Bash(CLICK_PROVIDER_TOKEN=390549344:TEST:abc .venv/bin/python -c ' *)",
+      "Bash(rm -f /tmp/pay.db)",
+      "Bash(DATABASE_URL=sqlite:////tmp/pay.db .venv/bin/python -c ' *)",
+      "Bash(.venv/bin/python -m compileall -q bot.py config.py api database handlers services utils keyboards middlewares)",
+      "Bash(.venv/bin/python -m py_compile handlers/admin.py)",
+      "Bash(.venv/bin/python -c \"import h2; print\\('h2', h2.__version__\\)\")",
+      "Bash(.venv/bin/python -c \"import h2, httpx; c=httpx.AsyncClient\\(http2=True\\); print\\('HTTP/2 клиент создаётся OK; h2', h2.__version__\\); import asyncio; asyncio.run\\(c.aclose\\(\\)\\)\")",
+      "Bash(.venv/bin/python -m compileall -q bot.py config.py services handlers)",
+      "Bash(.venv/bin/python -c \"import httpx; print\\('httpx', httpx.__version__\\)\")",
+      "Bash(.venv/bin/python -c \"import inspect, httpx; sig=inspect.signature\\(httpx.AsyncClient.__init__\\); print\\('proxies in params:', 'proxies' in sig.parameters, '| proxy in params:', 'proxy' in sig.parameters\\)\")",
+      "Bash(.venv/bin/python -c \"import bs4; print\\('bs4', bs4.__version__\\)\")",
+      "Bash(.venv/bin/python -c \"import bs4; print\\('bs4', bs4.__version__, 'OK'\\)\")",
+      "Bash(.venv/bin/python -m compileall -q bot.py config.py database handlers)",
+      "Bash(.venv/bin/python -m compileall -q bot.py config.py database handlers keyboards)",
+      "Bash(.venv/bin/python -m compileall -q config.py handlers/support.py)",
+      "Bash(SUPPORT_CHAT_ID='-1001234567890' .venv/bin/python -c \"import config; print\\('отрицательный →', config.SUPPORT_CHAT_ID\\); assert config.SUPPORT_CHAT_ID==-1001234567890\")",
+      "Bash(SUPPORT_CHAT_ID='1234567890' .venv/bin/python -c \"import config; print\\('значение:', config.SUPPORT_CHAT_ID\\)\")",
+      "Bash(.venv/bin/python -c \"import os; os.environ.pop\\('SUPPORT_CHAT_ID',None\\); import config; print\\('пусто →', config.SUPPORT_CHAT_ID\\)\")",
+      "Bash(.venv/bin/python -m compileall -q config.py handlers/support.py keyboards/menu.py)",
+      "Bash(timeout 6 .venv/bin/python -c \"import httpx; r=httpx.get\\('https://api.telegram.org', timeout=5\\); print\\('telegram reachable, HTTP', r.status_code\\)\")",
+      "Bash(sed -E 's/\\(-?[0-9]{4}\\)[0-9]+/\\\\1****/g')",
+      "Bash(sed -E 's/=.*/=<скрыто>/')",
+      "Bash(.venv/bin/python -c \"import dotenv; print\\('dotenv найдёт:', dotenv.find_dotenv\\(\\) or '\\(не найден\\)'\\)\")"
+    ],
+    "additionalDirectories": [
+      "/run/media/artur/33e890b4-e9ce-4308-8bb8-c1559b8054c5/Uzum_tools/api"
+    ]
+  }
+}

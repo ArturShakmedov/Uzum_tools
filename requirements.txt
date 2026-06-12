@@ -1,0 +1,23 @@
+httpx>=0.27
+# HTTP/2 для публичного парсера Uzum (мимикрия под мобильное приложение, обход
+# анти-бота). httpx требует h2 для http2=True.
+h2>=4.0
+# На Python 3.14 нужна сборка с поддержкой нового typing (проверено на 2.1.0b2).
+SQLAlchemy>=2.0.41
+# Миграции схемы БД (PostgreSQL прод / SQLite дев): alembic upgrade head.
+alembic>=1.13
+python-dotenv>=1.0
+# Telegram-бот и Excel-отчёты
+aiogram>=3.4
+openpyxl>=3.1
+# i18n (ru/uz/en): aiogram.utils.i18n на базе gettext требует Babel;
+# pybabel также используется для extract/update/compile каталогов locales/.
+Babel>=2.14
+# Шифрование токенов пользователей (Fernet)
+cryptography>=42.0
+# PostgreSQL (прод). Синхронный драйвер psycopg3 — под текущий sync-слой сессий
+# (сервисы уже offload'ятся в asyncio.to_thread, MVCC даёт параллельную запись).
+# Локалка/CI без поднятого Postgres работают на SQLite (дефолт DATABASE_URL).
+psycopg[binary]>=3.1
+# FSM-состояния aiogram в Redis → stateless-бот за балансировщиком (redis 5+).
+redis>=5.0
